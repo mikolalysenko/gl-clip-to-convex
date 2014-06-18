@@ -4,6 +4,8 @@ Clips drawable region to a convex polytope
 
 # Example
 
+[Try this in your browser here.](https://mikolalysenko.github.io/gl-clip-to-convex)
+
 ```javascript
 var NUM_VERTS = 10
 
