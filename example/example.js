@@ -1,10 +1,5 @@
-gl-clip-to-convex
-=================
-Clips drawable region to a convex polytope
+"use strict"
 
-# Example
-
-```javascript
 var NUM_VERTS = 10
 
 var shell = require("gl-now")({
@@ -14,15 +9,16 @@ var shell = require("gl-now")({
 var camera = require("game-shell-orbit-camera")(shell)
 var now = require("right-now")
 var createScatter = require("gl-scatter-plot")
-var createClipper = require("gl-clip-to-convex")
+var createClipper = require("../trim")
 var mat4 = require("gl-matrix").mat4
+var createAxes = require("gl-axes")
 
 camera.lookAt(
-  [10, 0, 0],
-  [ 0, 0, 0],
-  [ 0, 1, 0])
+  [10,0,0],
+  [0,0,0],
+  [0,1,0])
 
-var phases, freqs, clipper, pointCloud
+var phases, freqs, clipper, pointCloud, axes
 
 function getVerts() {
   var t = 0.0001 * now()
@@ -76,7 +72,12 @@ shell.on("gl-init", function() {
     orthographic: true
   })
 
+  //Initialize shell
   clipper = createClipper(gl, getVerts())
+
+  axes = createAxes(gl, {
+    bounds: [[-1,-1,-1], [1,1,1]]
+  })
 })
 
 shell.on("gl-render", function() {
@@ -94,47 +95,10 @@ shell.on("gl-render", function() {
   gl.depthMask(true)
   gl.enable(gl.DEPTH_TEST)
 
+  axes.draw(cameraParameters)
+
   clipper.update(getVerts())
   clipper.draw(cameraParameters)
+
   pointCloud.draw(cameraParameters)
 })
-```
-
-# Install
-
-```
-npm install gl-clip-to-convex
-```
-
-# API
-
-```javascript
-var createClipper = require("gl-clip-to-convex")
-```
-
-## Constructor
-
-### `var clipper = createClipper(gl, vertices)`
-Creates a new clipper object
-
-* `gl` is a WebGL context
-* `vertices` is a list of vertices for the convex polytope
-
-**Returns** A new clipper object
-
-## Methods
-
-### `clipper.draw(camera)`
-Updates the depth buffer such that all subsequent draw calls will be clipped to the convex region.
-
-* `camera` is an object containing the camera parameters of the object.
-
-### `clipper.update(vertices)`
-Updates the vertices of the clipper object
-
-### `clipper.dispose()`
-Destroys the clipper object and releases all resources
-
-# Credits
-
-(c) 2014 Mikola Lysenko.  MIT License
